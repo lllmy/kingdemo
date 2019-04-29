@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>Document</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="css/mui.css" />
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<h1 class="mui-title" id="title_text"></h1>
+		</header>
+		<div class="mui-content">
+			<ul class="mui-table-view">
+				<li class="mui-table-view-cell mui-media">
+					<a href="javascript:;">
+						<img class="mui-media-object mui-pull-left" src="" id="avatar">
+						<div class="mui-media-body">
+							<span id="nickname"></span>
+							<p class="mui-ellipsis" id="username">能和心爱的人一起睡觉，是件幸福的事情；可是，打呼噜怎么办？</p>
+						</div>
+					</a>
+				</li>
+			</ul>
+
+			<ul class="mui-table-view">
+				<li class="mui-table-view-cell">
+					<a class="mui-navigate-right" id="toy_manager">
+						<i class="mui-icon mui-icon-qq"></i>&nbsp;&nbsp;管理我的玩具
+					</a>
+				</li>
+			</ul>
+
+			<button type="button" class="mui-btn mui-btn-red mui-btn-block" id="logout">退出登录</button>
+		</div>
+
+		<script src="js/mui.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.init()
+			mui.back = function() {}
+			mui.plusReady(function() {
+				mui.post(
+					window.serv + "/get_user_info", {
+						"user_id": window.localStorage.getItem("user")
+					},
+					function(data) {
+						console.log(JSON.stringify(data));
+						document.getElementById("title_text").innerText = "欢迎 " + data.data.nickname + " 使用"
+						document.getElementById("avatar").src = "avatar/" + data.data.avatar;
+						document.getElementById("nickname").innerText = data.data.nickname;
+						document.getElementById("username").innerText = data.data.username;
+					}
+				)
+			})
+
+			document.getElementById("toy_manager").addEventListener("tap", function() {
+				mui.openWindow({
+					url: "toy_manager.html",
+					id: "toy_manager.html"
+				})
+			})
+
+			document.getElementById("logout").addEventListener("tap", function() {
+				window.localStorage.removeItem("user");
+				mui.openWindow({
+					url: "login.html",
+					id: "login.html",
+					styles: {
+						top: "0px",
+						bottom: "50px"
+					}
+				})
+			})
+		</script>
+	</body>
+
+</html>

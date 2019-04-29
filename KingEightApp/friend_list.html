@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>Document</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="css/mui.css" />
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<h1 class="mui-title">消息</h1>
+		</header>
+		<div class="mui-content">
+			<ul class="mui-table-view" id="friend_list">
+
+			</ul>
+		</div>
+		<script src="js/mui.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.init()
+			var Sdata = null;
+			mui.plusReady(function() {
+				Sdata = plus.webview.currentWebview();
+				mui.post(
+					window.serv + "/friend_list", {
+						user_id: window.localStorage.getItem("user")
+					},
+					function(data) {
+						for(var i = 0; i < data.data.length; i++) {
+							create_friend(data.data[i]);
+						}
+					}
+				)
+			})
+
+			function create_friend(friend) {
+				var spantag = document.createElement("span");
+				spantag.className = "mui-badge mui-badge-red";
+				spantag.id = "msg_"+friend.friend_id;
+				spantag.innerText = Sdata.msg_list[friend.friend_id];
+				var litag = document.createElement("li");
+				litag.className = "mui-table-view-cell mui-media";
+				var atag = document.createElement("a");
+				atag.id = friend.friend_id;
+				atag.onclick = function() {
+					open_chat(this.id);
+				};
+
+				var imgtag = document.createElement("img");
+				imgtag.className = "mui-media-object mui-pull-left";
+				imgtag.src = "avatar/" + friend.friend_avatar;
+
+				var divtag = document.createElement("div");
+				divtag.className = "mui-media-body";
+				divtag.innerText = friend.friend_nickname;
+
+				var ptag = document.createElement("p");
+				ptag.className = "mui-ellipsis";
+				ptag.innerText = friend.friend_remark;
+
+				litag.appendChild(atag);
+				atag.appendChild(imgtag);
+				atag.appendChild(divtag);
+				divtag.appendChild(ptag);
+				atag.appendChild(spantag);
+
+				document.getElementById("friend_list").appendChild(litag);
+			}
+
+			function open_chat(friend_id) {
+				var fir_count = document.getElementById("msg_"+friend_id).innerText; //2
+				var index = plus.webview.getWebviewById("HBuilder");
+				mui.fire(index,"cut",{"cut":parseInt(fir_count)});
+				document.getElementById("msg_"+friend_id).innerText = 0;
+				
+				mui.openWindow({
+					url: "chat.html",
+					id: "chat.html",
+					extras:{
+						"friend_id":friend_id,
+					}
+				})
+			}
+		</script>
+	</body>
+
+</html>

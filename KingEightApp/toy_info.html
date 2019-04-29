@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>Document</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="css/mui.css" />
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title" id="title_text">管理xxxx玩具</h1>
+		</header>
+		<div class="mui-content">
+			<div class="mui-row" style="text-align: center; margin-top: 5px;">
+				<img src="" style="width: 250px; height: 250px;border-radius: 100%;" id="avatar" />
+			</div>
+			<ul class="mui-table-view">
+				<li class="mui-table-view-cell">
+					<a class="mui-navigate-right">
+						<span>玩具名称:</span>
+						<span id="toy_name"></span>
+					</a>
+				</li>
+				<li class="mui-table-view-cell">
+					<a class="mui-navigate-right">
+						<span>宝宝名称:</span>
+						<span id="baby_name"></span>
+					</a>
+				</li>
+				<li class="mui-table-view-cell">
+					<a class="mui-navigate-right">
+						<span>玩具编号:</span>
+						<span id="device_key"></span>
+					</a>
+				</li>
+				<li class="mui-table-view-cell">
+					<a class="mui-navigate-right">
+						<span>玩具通讯录:</span>
+					</a>
+				</li>
+			</ul>
+			
+			<ul class="mui-table-view mui-grid-view" id="friend_list">
+			    <li class="mui-table-view-cell mui-media mui-col-xs-3">
+			        <a id="add_friend">
+			            <img class="mui-media-object" src="image/add.jpg" style="width: 75px;height: 75px; border-radius: 100%;">
+			            <div class="mui-media-body">添加好友</div>
+			        </a>
+			    </li>
+			</ul>
+		</div>
+		<script src="js/mui.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.init()
+			var Sdata = null;
+			mui.plusReady(function(){
+				Sdata = plus.webview.currentWebview();
+				mui.post(
+					window.serv + "/toy_info",
+					{"toy_id":Sdata.toy_id},
+					function(data){
+						console.log(JSON.stringify(data.data));
+						document.getElementById("toy_name").innerText=data.data.toy_name;
+						document.getElementById("baby_name").innerText=data.data.baby_name;
+						document.getElementById("device_key").innerText=data.data.device_key;
+						document.getElementById("avatar").src="avatar/"+data.data.avatar;
+						//通讯录
+						for (var i = 0; i < data.data.friend_list.length; i++) {
+							create_friend(data.data.friend_list[i]);
+						}
+					}
+				)
+			})
+			
+			function create_friend(friend){			    
+			    var litag = document.createElement("li");
+			    litag.className = "mui-table-view-cell mui-media mui-col-xs-3";
+			    var atag = document.createElement("a");
+			    var imgtag = document.createElement("img");
+			    imgtag.className="mui-media-object";
+			    imgtag.style.cssText = "width: 75px;height: 75px; border-radius: 100%;";
+			    imgtag.src = "avatar/"+friend.friend_avatar;
+			    var divtag = document.createElement("div");
+			    divtag.className = "mui-media-body";
+			    divtag.innerText = friend.friend_remark;
+			    
+			    litag.appendChild(atag);
+			    atag.appendChild(imgtag);
+			    atag.appendChild(divtag);
+			    
+			    document.getElementById("friend_list").appendChild(litag);
+			}
+			
+			document.getElementById("add_friend").addEventListener("tap",function(){
+				mui.openWindow({
+					url: "QR_code.html", //子页面HTML地址，支持本地地址和网络地址
+					id: "QR_code.html", //子页面标志
+					extras:{
+						scan_type:"toy",
+						toy_id:Sdata.toy_id
+					}
+				})
+			})
+		</script>
+	</body>
+
+</html>

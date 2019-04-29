@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>Document</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="css/mui.css" />
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<h1 class="mui-title">用户登录</h1>
+		</header>
+		<div class="mui-content">
+			<form class="mui-input-group">
+				<div class="mui-input-row">
+					<label>用户名</label>
+					<input type="text" id="username" class="mui-input-clear" placeholder="请输入用户名">
+				</div>
+				<div class="mui-input-row">
+					<label>密码</label>
+					<input type="password" id="password" class="mui-input-password" placeholder="请输入密码">
+				</div>
+				<div class="mui-button-row">
+					<button type="button" class="mui-btn mui-btn-primary" id="login">登录</button>
+					<button type="button" class="mui-btn mui-btn-green" id="reg">注册</button>
+				</div>
+			</form>
+		</div>
+
+	</body>
+	<script src="js/mui.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/md5.js" type="text/javascript" charset="utf-8"></script>
+	
+	<script type="text/javascript">
+		mui.init()
+		mui.back = function() {}
+		var index = null;
+		mui.plusReady(function(){
+			index = plus.webview.getWebviewById("HBuilder");
+		})
+
+		document.getElementById("login").addEventListener("tap", function() {
+			var username = document.getElementById("username").value;
+			var password = document.getElementById("password").value;
+			password = hex_md5(password);
+			mui.post(
+				window.serv + "/login", {
+					'username': username,
+					"password": password
+				},
+				function(data) {
+					console.log(JSON.stringify(data));
+					
+					if(data.code==1){
+						mui.toast(data.msg);
+						return
+					}
+					
+					window.localStorage.setItem("user",data.data._id);
+					
+					mui.fire(index,"open_ws",{});
+					mui.openWindow({
+						url: "user_info.html",
+						id: "user_info.html",
+						styles: {
+							top: "0px",
+							bottom: "50px"
+						}
+					})
+				}
+			)
+		})
+
+		document.getElementById("reg").addEventListener("tap", function() {
+			mui.openWindow({
+				url: "reg.html",
+				id: "reg.html",
+			})
+		})
+	</script>
+
+</html>

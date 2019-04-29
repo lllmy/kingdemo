@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>Document</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="css/mui.css" />
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">管理我的玩具</h1>
+		</header>
+		<div class="mui-content">
+			<ul class="mui-table-view" id="toy_list">
+				<li class="mui-table-view-cell mui-media">
+					<a id="scanQR">
+						<img class="mui-media-object mui-pull-left" src="image/add.jpg">
+						<div class="mui-media-body">
+							你还没有玩具，赶紧花钱买一个
+							<p class="mui-ellipsis">点击扫码绑定玩具</p>
+						</div>
+					</a>
+				</li>
+			</ul>
+		</div>
+		<script src="js/mui.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.init()
+			mui.plusReady(function() {
+				mui.post(
+					window.serv + "/toy_list", {
+						user_id: window.localStorage.getItem("user")
+					},
+					function(data) {
+						console.log(JSON.stringify(data));
+						for(var i = 0; i < data.data.length; i++) {
+							create_item(data.data[i]);
+						}
+					}
+				)
+
+			})
+
+			function create_item(content) {
+				var litag = document.createElement("li");
+				litag.className = "mui-table-view-cell mui-media";
+				var atag = document.createElement("a");
+				atag.id = content._id;
+				atag.onclick = function() {
+//					console.log(this.id)
+					open_toy_info(this.id);
+				};
+
+				var imgtag = document.createElement("img");
+				imgtag.className = "mui-media-object mui-pull-left";
+				imgtag.src = "avatar/" + content.avatar;
+
+				var divtag = document.createElement("div");
+				divtag.className = "mui-media-body";
+				divtag.innerText = content.toy_name;
+
+				var ptag = document.createElement("p");
+				ptag.className = "mui-ellipsis";
+				ptag.innerText = content.baby_name;
+
+				litag.appendChild(atag);
+				atag.appendChild(imgtag);
+				atag.appendChild(divtag);
+				divtag.appendChild(ptag);
+
+				document.getElementById("toy_list").appendChild(litag);
+
+			}
+
+			document.getElementById("scanQR").addEventListener("tap", function() {
+				mui.openWindow({
+					url: "QR_code.html", //子页面HTML地址，支持本地地址和网络地址
+					id: "QR_code.html", //子页面标志
+					extras:{
+						scan_type:"user"
+					}
+				})
+			})
+
+			function open_toy_info(toy_id){
+				mui.openWindow({
+					url: "toy_info.html", //子页面HTML地址，支持本地地址和网络地址
+					id: "toy_info.html", //子页面标志
+					extras:{
+						toy_id:toy_id,
+					}
+				})
+			}
+		</script>
+	</body>
+
+</html>

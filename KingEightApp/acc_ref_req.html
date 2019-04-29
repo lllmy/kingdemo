@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>Document</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="css/mui.css" />
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">验证好友请求</h1>
+		</header>
+		<div class="mui-content">
+			<div class="mui-input-row">
+				<label>好友备注</label>
+				<input type="text" class="mui-input-clear" placeholder="好友备注" id="remark">
+			</div>
+			<div class="mui-button-row">
+				<button type="button" class="mui-btn mui-btn-primary mui-action-back" id="acc_req">同意</button>
+				<button type="button" class="mui-btn mui-btn-danger mui-action-back" id="ref_req">拒绝</button>
+			</div>
+		</div>
+		<script src="js/mui.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			mui.init()
+			var Sdata = null;
+			mui.plusReady(function() {
+				Sdata = plus.webview.currentWebview();
+			})
+
+			document.getElementById("acc_req").addEventListener("tap", function() {
+				var remark = document.getElementById("remark").value;
+				mui.post(
+					window.serv + "/acc_req",
+					{"req_id":Sdata.req_id ,"remark":remark},
+					function(data){
+						console.log(JSON.stringify(data))
+					}
+				)
+			})
+
+			document.getElementById("ref_req").addEventListener("tap", function() {
+				mui.post(
+					window.serv + "/ref_req",
+					{"req_id":Sdata.req_id},
+					function(data){
+						console.log(JSON.stringify(data))
+					}
+				)
+			})
+		</script>
+	</body>
+
+</html>

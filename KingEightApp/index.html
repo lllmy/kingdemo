@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>Document</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="css/mui.css" />
+	</head>
+
+	<body>
+		<nav class="mui-bar mui-bar-tab">
+			<a class="mui-tab-item mui-active" id="index">
+				<span class="mui-icon mui-icon-home"></span>
+				<span class="mui-tab-label">首页</span>
+			</a>
+			<a class="mui-tab-item" id="message">
+				<span class="mui-icon mui-icon-chat"><span class="mui-badge mui-badge-red" id="msg_count">0</span></span>
+				<span class="mui-tab-label">消息</span>
+			</a>
+			<a class="mui-tab-item" id="req_list">
+				<span class="mui-icon mui-icon-email"></span>
+				<span class="mui-tab-label">邮件</span>
+			</a>
+			<a class="mui-tab-item" id="user_info">
+				<span class="mui-icon mui-icon-gear"></span>
+				<span class="mui-tab-label">设置</span>
+			</a>
+		</nav>
+
+	</body>
+	<script src="js/mui.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		var ws = null;
+		var msg_list = null;
+
+		mui.init({
+			subpages: [{
+				url: "main.html", //子页面HTML地址，支持本地地址和网络地址
+				id: "main.html", //子页面标志
+				styles: {
+					top: "0px", //子页面顶部位置
+					bottom: "50px", //子页面底部位置
+				}
+			}]
+		})
+
+		mui.plusReady(function() {
+			if(window.localStorage.getItem("user")) {
+				mui.post(
+					window.serv + "/user_msg", {
+						"user_id": window.localStorage.getItem("user")
+					},
+					function(data) {
+						console.log(JSON.stringify(data));
+						msg_list = data.data;
+						document.getElementById("msg_count").innerText = data.data.count;
+
+					}
+				)
+				ws = new WebSocket(window.ws_serv + window.localStorage.getItem("user"));
+				ws.onmessage = function(data) {
+					var msg_count = document.getElementById("msg_count")
+					var count = parseInt(msg_count.innerText);
+					msg_count.innerText = count + 1
+					console.log(data.data);
+					var msg = JSON.parse(data.data);
+					console.log(msg);
+					var chat = plus.webview.getWebviewById("chat.html");
+					mui.fire(chat, "yham", msg);
+				}
+				ws.onclose = function() {
+					mui.toast("websocket已断开，正在重新连接");
+					window.location.reload();
+				}
+			}
+		})
+
+		document.addEventListener("send_music", function(data) {
+			ws.send(JSON.stringify(data.detail));
+		})
+
+		document.addEventListener("open_ws", function(data) {
+			ws = new WebSocket(window.ws_serv + window.localStorage.getItem("user"));
+			ws.onclose = function() {
+				mui.toast("websocket已断开，正在重新连接");
+				window.location.reload();
+			}
+		})
+
+		document.getElementById("user_info").addEventListener("tap", function() {
+			if(window.localStorage.getItem("user")) {
+
+				mui.openWindow({
+					url: "user_info.html",
+					id: "user_info.html",
+					styles: {
+						top: "0px",
+						bottom: "50px"
+					}
+				})
+			} else {
+				mui.openWindow({
+					url: "login.html",
+					id: "login.html",
+					styles: {
+						top: "0px",
+						bottom: "50px"
+					}
+				})
+			}
+
+		})
+
+		document.getElementById("index").addEventListener("tap", function() {
+			mui.openWindow({
+				url: "main.html",
+				id: "main.html",
+				styles: {
+					top: "0px",
+					bottom: "50px"
+				}
+			})
+		})
+
+		document.getElementById("message").addEventListener("tap", function() {
+			mui.openWindow({
+				url: "friend_list.html",
+				id: "friend_list.html",
+				styles: {
+					top: "0px",
+					bottom: "50px"
+				},
+				extras: {
+					"msg_list": msg_list
+				},
+				createNew:true
+			})
+		})
+		
+		
+		document.getElementById("req_list").addEventListener("tap", function() {
+			mui.openWindow({
+				url: "req_list.html",
+				id: "req_list.html",
+				styles: {
+					top: "0px",
+					bottom: "50px"
+				}
+			})
+		})
+		document.addEventListener("cut", function(data) {
+			var msg_count = document.getElementById("msg_count")
+			var count = parseInt(msg_count.innerText);
+			msg_count.innerText = count - data.detail.cut
+		})
+	</script>
+
+</html>

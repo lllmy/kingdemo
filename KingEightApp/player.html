@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Document</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <link rel="stylesheet" type="text/css" href="css/mui.css"/>
+</head>
+<body>
+    <header class="mui-bar mui-bar-nav">
+        <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+        <h1 class="mui-title" id="title_text"></h1>
+    </header>
+    <div class="mui-content">
+        <div class="mui-row" style="text-align: center; margin-top: 5px;">
+            <img src="" style="width: 250px; height: 250px;border-radius: 100%;" id="cover"/>
+        </div>
+        <button type="button" class="mui-btn mui-btn-red mui-btn-block" id="stop">停止</button>
+        <button type="button" class="mui-btn mui-btn-green mui-btn-block" id="goon">继续</button>
+        <button type="button" class="mui-btn mui-btn-yellow mui-btn-block" id="pause">暂停</button>
+        <style type="text/css">
+        #popover{
+        	height: 100px;
+        	width:200px;
+        }
+        </style>
+        <div id="popover" class="mui-popover">
+        	<div class="mui-scroll-wrapper">
+        	    <div class="mui-scroll">
+        		    <ul class="mui-table-view" id="toy_list">
+        		    	
+        		    </ul>
+        		</div>
+        	</div>
+        </div>
+        <a href="#popover" id="openPopover" class="mui-btn mui-btn-primary mui-btn-block">发送给玩具</a>
+        
+    </div>
+
+</body>
+    <script src="js/mui.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript">
+    mui.init()
+    var player = null;
+    var Sdata = null;
+    mui('.mui-scroll-wrapper').scroll();
+    mui.plusReady(function(){
+    	Sdata = plus.webview.currentWebview(); 	
+    	mui.post(
+    		window.serv + "/toy_list",
+    		{user_id:window.localStorage.getItem("user")},
+    		function(data){
+    			for (var i = 0; i < data.data.length; i++) {
+    				create_toyinfo(data.data[i])
+    			}
+    		}
+    		
+    	)
+    	player = plus.audio.createPlayer(window.music_serv + Sdata.audio);
+    	document.getElementById("cover").src = window.image_serv + Sdata.cover;
+    	document.getElementById("title_text").innerText = "正在播放 "+Sdata.title;
+    	player.play();
+    })
+    
+    document.getElementById("stop").addEventListener("tap",function(){
+    	player.stop();
+    })
+    document.getElementById("pause").addEventListener("tap",function(){
+    	player.pause();
+    })
+    document.getElementById("goon").addEventListener("tap",function(){
+    	player.resume();
+    })
+    
+    function create_toyinfo(toy){
+   	
+    	var litag = document.createElement("li");
+    	litag.className = "mui-table-view-cell";
+    	var atag = document.createElement("a");
+    	atag.id = toy._id
+    	atag.onclick = function(){
+      		var index = plus.webview.getWebviewById("HBuilder");
+    		mui.fire(index,"send_music",{to_user:this.id,music:Sdata.audio})
+    	}
+    	atag.innerText = toy.baby_name
+    	
+    	litag.appendChild(atag);
+    	
+    	document.getElementById("toy_list").appendChild(litag);
+    	
+    }
+//  document.getElementById("send_music").addEventListener("tap",function(){
+//  	var index = plus.webview.getWebviewById("HBuilder");
+//  	mui.fire(index,"send_music",{to_user:"yinwangba",music:Sdata.audio})
+//  })
+    </script>
+</html>

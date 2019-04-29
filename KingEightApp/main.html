@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Document</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <link rel="stylesheet" type="text/css" href="css/mui.css"/>
+</head>
+<body>
+    <header class="mui-bar mui-bar-nav">
+        <h1 class="mui-title">首页</h1>
+    </header>
+    <div class="mui-content">
+        <div id="slider" class="mui-slider" >
+          <div class="mui-slider-group mui-slider-loop">
+            <!-- 额外增加的一个节点(循环轮播：第一个节点是最后一张轮播) -->
+            <div class="mui-slider-item mui-slider-item-duplicate">
+              <a href="#">
+                <img src="http://placehold.it/400x300">
+              </a>
+            </div>
+            <!-- 第一张 -->
+            <div class="mui-slider-item">
+              <a href="#">
+                <img src="http://placehold.it/400x300">
+              </a>
+            </div>
+            <!-- 第二张 -->
+            <div class="mui-slider-item">
+              <a href="#">
+                <img src="http://placehold.it/400x300">
+              </a>
+            </div>
+            <!-- 第三张 -->
+            <div class="mui-slider-item">
+              <a href="#">
+                <img src="http://placehold.it/400x300">
+              </a>
+            </div>
+            <!-- 第四张 -->
+            <div class="mui-slider-item">
+              <a href="#">
+                <img src="http://placehold.it/400x300">
+              </a>
+            </div>
+            <!-- 额外增加的一个节点(循环轮播：最后一个节点是第一张轮播) -->
+            <div class="mui-slider-item mui-slider-item-duplicate">
+              <a href="#">
+                <img src="http://placehold.it/400x300">
+              </a>
+            </div>
+          </div>
+          <div class="mui-slider-indicator">
+            <div class="mui-indicator mui-active"></div>
+            <div class="mui-indicator"></div>
+            <div class="mui-indicator"></div>
+            <div class="mui-indicator"></div>
+          </div>
+        </div>
+        <ul class="mui-table-view mui-grid-view mui-grid-9">
+        <li class="mui-table-view-cell mui-media mui-col-xs-4 mui-col-sm-3">
+            <a href="#">
+                <span class="mui-icon mui-icon-home"></span>
+                <div class="mui-media-body">儿歌</div>
+            </a>
+        </li>
+        <li class="mui-table-view-cell mui-media mui-col-xs-4 mui-col-sm-3">
+            <a href="#">
+                <span class="mui-icon mui-icon-email"><span class="mui-badge mui-badge-red">5</span></span>
+                <div class="mui-media-body">故事</div>
+            </a>
+        </li>
+        <li class="mui-table-view-cell mui-media mui-col-xs-4 mui-col-sm-3">
+            <a href="#">
+                <span class="mui-icon mui-icon-chatbubble"></span>
+                <div class="mui-media-body">音乐</div>
+            </a>
+        </li>
+        <li class="mui-table-view-cell mui-media mui-col-xs-4 mui-col-sm-3">
+            <a href="#">
+                <span class="mui-icon mui-icon-location"></span>
+                <div class="mui-media-body">自然</div>
+            </a>
+        </li>
+        <li class="mui-table-view-cell mui-media mui-col-xs-4 mui-col-sm-3">
+            <a href="#">
+                <span class="mui-icon mui-icon-search"></span>
+                <div class="mui-media-body">国学</div>
+            </a>
+        </li>
+        <li class="mui-table-view-cell mui-media mui-col-xs-4 mui-col-sm-3">
+            <a href="#">
+                <span class="mui-icon mui-icon-phone"></span>
+                <div class="mui-media-body">百科</div>
+            </a>
+        </li>
+            </ul>
+        
+        <ul class="mui-table-view" id="content_list">
+           
+        </ul>
+        
+    </div>
+
+</body>
+    <script src="js/mui.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript">
+    	mui.init()
+    	var back_count = 0
+    	var my_back = mui.back;
+    	mui.back = function(){
+//  		back_count++;
+//  		mui.toast("再按一次退出");
+//  		if(back_count==2){
+//  			my_back();
+//  		}
+    	}
+    	mui.plusReady(function(){
+    		mui.post(
+    			window.serv + "/content_list",
+    			{},
+    			function(data){
+					for (var i = 0; i < data.length; i++) {
+						create_item(data[i])
+					}
+    			}
+    		)
+    	})
+    	
+    	function create_item(content){
+            var litag = document.createElement("li");
+            litag.className = "mui-table-view-cell mui-media";
+            var atag = document.createElement("a");
+            atag.id = content._id;
+            atag.onclick=function(){
+            	open_player(content);
+//          	open_player(this.id);
+            };
+            
+            var imgtag = document.createElement("img");
+            imgtag.className ="mui-media-object mui-pull-left";
+            imgtag.src = window.image_serv + content.cover;
+            
+            var divtag = document.createElement("div");
+            divtag.className="mui-media-body";
+            divtag.innerText = content.title;
+            
+            var ptag = document.createElement("p");
+            ptag.className = "mui-ellipsis";
+            ptag.innerText = content.nickname;
+            
+            litag.appendChild(atag);
+            atag.appendChild(imgtag);
+            atag.appendChild(divtag);
+            divtag.appendChild(ptag);
+            
+            document.getElementById("content_list").appendChild(litag);
+
+    	}
+    	
+    	function open_player(content){
+    		mui.openWindow({
+		      url:"player.html",//子页面HTML地址，支持本地地址和网络地址
+		      id:"player.html",//子页面标志
+		      extras:content
+		    })
+    	}
+    </script>
+</html>
